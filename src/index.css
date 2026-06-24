@@ -1,0 +1,22 @@
+/* Global reset — fonts and design tokens live in App.css */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  background-color: #0c0d11;
+  color: #f0f2f8;
+  overflow-x: hidden;
+}
+
+body.menu-open {
+  overflow: hidden;
+}
