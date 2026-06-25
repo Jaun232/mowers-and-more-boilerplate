@@ -55,7 +55,7 @@ export default function Home() {
         <div className="hero-overlay" />
         <div className="hero-content">
           <h1 className="hero-title">
-            Mowers<br /><span className="text-green">and More</span>
+            Mowers<br /><span className="text-green">&amp; More</span>
           </h1>
           <p className="hero-subtitle">
             Your trusted partner for equipment,<br className="break-md" />parts, and services — since {FOUNDED_YEAR}.

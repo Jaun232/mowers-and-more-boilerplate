@@ -34,7 +34,7 @@ export default function Header() {
   return (
     <header className={`site-header ${scrolled ? 'scrolled' : ''}`}>
       <div className="header-inner">
-        <NavLink to="/" className="logo-link" aria-label="Mowers and More – Home">
+        <NavLink to="/" className="logo-link" aria-label="Mowers & More – Home">
           <Logo height={52} className="logo-img" />
         </NavLink>
 
