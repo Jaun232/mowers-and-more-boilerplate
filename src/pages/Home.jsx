@@ -19,15 +19,6 @@ function useReveal() {
 }
 
 /* ── sub-components ── */
-function StatItem({ value, label }) {
-  return (
-    <div className="stat-item">
-      <span className="stat-value">{value}</span>
-      <span className="stat-label">{label}</span>
-    </div>
-  );
-}
-
 function FeatureCard({ icon, title, desc }) {
   const ref = useReveal();
   return (
@@ -55,9 +46,7 @@ function EqCard({ label, image, to }) {
 
 /* ── Page ── */
 export default function Home() {
-  const equipRef  = useReveal();
-  const statsRef  = useReveal();
-  const ctaRef    = useReveal();
+  const ctaRef = useReveal();
 
   return (
     <>
@@ -82,35 +71,6 @@ export default function Home() {
         </div>
         <div className="hero-scroll-hint">
           <span />
-        </div>
-      </section>
-
-      {/* STATS BAR */}
-      <div className="stats-bar reveal-up" ref={statsRef}>
-        <StatItem value={`${new Date().getFullYear() - FOUNDED_YEAR}+`} label="Years Experience" />
-        <div className="stat-divider" />
-        <StatItem value="500+" label="Happy Customers" />
-        <div className="stat-divider" />
-        <StatItem value="50+"  label="Brands Stocked" />
-        <div className="stat-divider" />
-        <StatItem value="5★"   label="Google Rating" />
-      </div>
-
-      {/* EQUIPMENT */}
-      <section className="equipment-section" id="sales">
-        <div className="section-inner equipment-grid reveal-up" ref={equipRef}>
-          <div className="equipment-intro">
-            <span className="section-tag">EQUIPMENT</span>
-            <h2 className="section-title">New Equipment</h2>
-            <p className="section-desc">
-              Select a category to explore our available equipment
-            </p>
-            <Link to="/sales" className="btn-ghost">View All Equipment →</Link>
-          </div>
-          <div className="eq-cards">
-            <EqCard label="Lawnmowers"  image="/lawnmowers.png"  to="/sales" />
-            <EqCard label="Brushcutters" image="/brushcutters.png" to="/sales" />
-          </div>
         </div>
       </section>
 
