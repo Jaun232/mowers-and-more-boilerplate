@@ -17,27 +17,54 @@ function useReveal() {
   return ref;
 }
 
-const categories = ['All', 'Lawnmowers', 'Ride-Ons', 'Brushcutters', 'Chainsaws', 'Blowers'];
-
-const products = [
-  { id: 1, name: 'Honda HRX217 Self-Propelled', category: 'Lawnmowers',  image: '/lawnmowers.png',  price: '$1,199', badge: 'Bestseller' },
-  { id: 2, name: 'Husqvarna TC138 Ride-On',     category: 'Ride-Ons',    image: '/rideon.png',      price: '$3,499', badge: 'New'       },
-  { id: 3, name: 'STIHL FS 94 R Brushcutter',   category: 'Brushcutters',image: '/brushcutters.png',price: '$649',   badge: null        },
-  { id: 4, name: 'STIHL MS 271 Farm Boss',       category: 'Chainsaws',   image: '/chainsaw.png',    price: '$899',   badge: 'Popular'   },
-  { id: 5, name: 'Husqvarna LC 221A',            category: 'Lawnmowers',  image: '/lawnmowers.png',  price: '$799',   badge: null        },
-  { id: 6, name: 'Honda HF2417 Ride-On',         category: 'Ride-Ons',    image: '/rideon.png',      price: '$4,199', badge: 'In Stock'  },
-  { id: 7, name: 'Echo SRM-225 Trimmer',         category: 'Brushcutters',image: '/brushcutters.png',price: '$349',   badge: null        },
-  { id: 8, name: 'STIHL MS 170 Chainsaw',        category: 'Chainsaws',   image: '/chainsaw.png',    price: '$499',   badge: null        },
-];
-
-const brands = ['Honda', 'Husqvarna', 'STIHL', 'Echo', 'Briggs & Stratton', 'Kawasaki', 'Makita', 'Greenworks'];
+const fallbackBrands = ['Honda', 'Husqvarna', 'STIHL', 'Echo', 'Briggs & Stratton', 'Kawasaki', 'Makita', 'Greenworks'];
 
 export default function Sales() {
   const [active, setActive] = useState('All');
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState(fallbackBrands);
+  const [loading, setLoading] = useState(true);
   const gridRef = useReveal();
   const brandsRef = useReveal();
 
-  const filtered = active === 'All' ? products : products.filter(p => p.category === active);
+  useEffect(() => {
+    let ignore = false;
+
+    async function loadProducts() {
+      try {
+        const response = await fetch('/api/products');
+        if (!response.ok) throw new Error('Failed to load products');
+        const data = await response.json();
+
+        if (ignore) return;
+
+        const nextCategories = ['All', ...(data.categories || []).map((item) => item.name)];
+        const nextProducts = (data.products || []).map((product) => ({
+          ...product,
+          category: product.category || 'Other',
+        }));
+        const nextBrands = Array.from(new Set(nextProducts.map((product) => product.brand).filter(Boolean))).slice(0, 10);
+
+        setCategories(nextCategories);
+        setProducts(nextProducts);
+        setBrands(nextBrands.length ? nextBrands : fallbackBrands);
+      } catch (error) {
+        if (!ignore) {
+          setCategories(['All']);
+          setProducts([]);
+          setBrands(fallbackBrands);
+        }
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    }
+
+    loadProducts();
+    return () => { ignore = true; };
+  }, []);
+
+  const filtered = active === 'All' ? products : products.filter((p) => p.category === active);
 
   return (
     <>
@@ -59,7 +86,7 @@ export default function Sales() {
       <section className="products-section" id="products">
         <div className="section-inner">
           <div className="filter-bar reveal-up" ref={useReveal()}>
-            {categories.map(cat => (
+            {categories.map((cat) => (
               <button
                 key={cat}
                 className={`filter-btn ${active === cat ? 'active' : ''}`}
@@ -70,24 +97,30 @@ export default function Sales() {
             ))}
           </div>
 
-          <div className="products-grid reveal-up" ref={gridRef}>
-            {filtered.map(p => (
-              <div key={p.id} className="product-card">
-                {p.badge && <span className="product-badge">{p.badge}</span>}
-                <div className="product-img" style={{ backgroundImage: `url(${p.image})` }} />
-                <div className="product-info">
-                  <span className="product-cat">{p.category}</span>
-                  <h3 className="product-name">{p.name}</h3>
-                  <div className="product-footer">
-                    <span className="product-price">{p.price}</span>
-                    <Link to="/contact" className="btn-sm">Enquire</Link>
+          {loading ? (
+            <div className="empty-state">
+              <p>Loading equipment from the source database…</p>
+            </div>
+          ) : (
+            <div className="products-grid reveal-up" ref={gridRef}>
+              {filtered.map((p) => (
+                <div key={p.id} className="product-card">
+                  {p.badge && <span className="product-badge">{p.badge}</span>}
+                  <div className="product-img" style={{ backgroundImage: `url(${p.image})` }} />
+                  <div className="product-info">
+                    <span className="product-cat">{p.category}</span>
+                    <h3 className="product-name">{p.name}</h3>
+                    <div className="product-footer">
+                      <span className="product-price">{p.price}</span>
+                      <Link to="/contact" className="btn-sm">Enquire</Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
-          {filtered.length === 0 && (
+          {!loading && filtered.length === 0 && (
             <div className="empty-state">
               <p>No equipment found in this category.</p>
               <button className="btn-ghost" onClick={() => setActive('All')}>View All</button>
